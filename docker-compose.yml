@@ -1,0 +1,41 @@
+version: '3'
+
+services:
+  laravel-app:
+    image: php:7.4-fpm
+    container_name: laravel-app
+    working_dir: /var/www/html
+    volumes:
+      - ./laravel:/var/www/html
+    networks:
+      - app-network
+    depends_on:
+      - postgres
+    env_file:
+      - .env
+
+  react-app:
+    image: node:14
+    container_name: react-app
+    working_dir: /usr/src/app
+    volumes:
+      - ./react:/usr/src/app
+    networks:
+      - app-network
+    command: sh -c "npm install && npm start"
+    env_file:
+      - .env
+
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: ${DB_DATABASE}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+
+networks:
+  app-network:
+    driver: bridge
